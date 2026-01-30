@@ -10,8 +10,4 @@ public interface AdminRepository extends JpaRepository<Admin, Integer> {
     boolean existsByUserNum(String userNum);
 
     Admin findByUserNum(String adminNum);
-
-    Admin findByEmail(String email);
-
-    // ⚠ All writes via Stored Procedures
 }
