@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface GrievanceLegalRefsRepository extends JpaRepository<GrievanceLegalRefs, Integer> {
+public interface GrievanceLegalRefsRepository extends JpaRepository<GrievanceLegalRefs, String> {
 
     List<GrievanceLegalRefs> findByGrievance_GrvnNum(String grvnNum);
 

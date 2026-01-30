@@ -1,9 +1,12 @@
 package com.gms.controllers.analytics;
 
+import com.gms.dto.GrievanceCategoryDTO;
 import com.gms.services.GrievanceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/grievances/analytics")
@@ -30,7 +33,9 @@ public class GrievanceAnalyticsController {
 
     // vw_grievances_list_by_category
     @GetMapping("/list-by-category")
-    public ResponseEntity<?> listByCategory() {
-        return ResponseEntity.ok(grievanceService.listByCategory());
+    public ResponseEntity<?> listByCategory(@RequestParam(required = false) String category) {
+        List<GrievanceCategoryDTO> grievances = grievanceService.listByCategory(category);
+        return ResponseEntity.ok(grievances);
     }
+
 }

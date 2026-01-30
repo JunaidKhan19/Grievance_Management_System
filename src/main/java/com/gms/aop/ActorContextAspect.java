@@ -1,29 +1,44 @@
 package com.gms.aop;
 
 import com.gms.utils.ActorContextHolder;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
 public class ActorContextAspect {
 
-    // Pointcut for all grievance service methods
-    @Pointcut("execution(* com.gms.services.GrievanceService.*(..))")
-    public void grievanceServiceMethods() {}
+    @Around("execution(* com.gms.services..*(..))")
+    public Object setActorContext(ProceedingJoinPoint joinPoint) throws Throwable {
 
-    @Before("grievanceServiceMethods() && args(.., actorId, actorRole)")
-    public void bindActorContext(JoinPoint joinPoint, String actorId, String actorRole) {
-        // Only set if not already set to prevent recursion
-        if (ActorContextHolder.getActorId() == null) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.isAuthenticated()) {
+
+            String actorId = auth.getName(); // O005
+
+            String actorRole = auth.getAuthorities()
+                    .iterator()
+                    .next()
+                    .getAuthority(); // ROLE_OFFICER
+
+            // 🔥 STRIP PREFIX
+            if (actorRole.startsWith("ROLE_")) {
+                actorRole = actorRole.substring(5);
+            }
+
             ActorContextHolder.setActorId(actorId);
             ActorContextHolder.setActorRole(actorRole);
         }
-    }
 
-    @After("grievanceServiceMethods()")
-    public void clearActorContext(JoinPoint joinPoint) {
-        ActorContextHolder.clear();
+        try {
+            return joinPoint.proceed();
+        } finally {
+            ActorContextHolder.clear();
+        }
     }
 }

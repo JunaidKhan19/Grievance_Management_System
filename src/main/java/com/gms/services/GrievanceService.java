@@ -26,10 +26,10 @@ public interface GrievanceService {
     List<Object[]> countByCategory();
 
     // 7. List grievances by category
-    List<Object[]> listByCategory();
+    List<GrievanceCategoryDTO> listByCategory(String category);
 
     // 8. Assign grievance → SP (admin)
-    void assignGrievance(GrievanceAssignDTO assignDTO);
+    String assignGrievance(GrievanceAssignDTO assignDTO);
 
     // 9. Resolve grievance → SP (officer)
     void resolveGrievance(GrievanceResolveDTO resolveDTO);

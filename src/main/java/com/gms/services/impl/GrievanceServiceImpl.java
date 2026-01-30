@@ -96,27 +96,48 @@ public class GrievanceServiceImpl implements GrievanceService {
     }
 
     @Override
-    public List<Object[]> listByCategory() {
-        return grievanceRepository.listByCategory();
+    public List<GrievanceCategoryDTO> listByCategory(String category) {
+        List<Object[]> rawList = grievanceRepository.listByCategory(category);
+
+        return rawList.stream().map(obj -> {
+            GrievanceCategoryDTO dto = new GrievanceCategoryDTO();
+            dto.setCategoryNum((String) obj[0]);
+            dto.setCategoryName((String) obj[1]);
+            dto.setGrievanceNum((String) obj[2]);
+            dto.setSubject((String) obj[3]);
+            dto.setDescription((String) obj[4]);
+            dto.setStatus((String) obj[5]);
+            dto.setSeverity((String) obj[6]);
+            dto.setDateFiled(obj[7] != null ? ((java.sql.Timestamp) obj[7]).toLocalDateTime() : null);
+            dto.setEmployeeNum((String) obj[8]);
+            dto.setEmployeeName((String) obj[9]);
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     // 8. Assign grievance → SP
     @Override
     @Transactional
-    public void assignGrievance(GrievanceAssignDTO dto) {
-        StoredProcedureQuery sp = em.createStoredProcedureQuery("assign_grievance");
-        sp.registerStoredProcedureParameter("p_grvnnum", String.class, ParameterMode.IN);
-        sp.registerStoredProcedureParameter("p_officernum", String.class, ParameterMode.IN);
-        sp.registerStoredProcedureParameter("p_actor_id", String.class, ParameterMode.IN);
-        sp.registerStoredProcedureParameter("p_actor_role", String.class, ParameterMode.IN);
+    public String assignGrievance(GrievanceAssignDTO dto) {
 
-        sp.setParameter("p_grvnnum", dto.getGrvnNum());
-        sp.setParameter("p_officernum", dto.getOfficerNum());
-        sp.setParameter("p_actor_id", dto.getActorId());
-        sp.setParameter("p_actor_role", dto.getActorRole());
+        StoredProcedureQuery sp =
+                em.createStoredProcedureQuery("assign_grievance");
+
+        // EXACT order as SP
+        sp.registerStoredProcedureParameter(1, String.class, ParameterMode.IN);   // p_grvnnum
+        sp.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);   // p_actor_id
+        sp.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);   // p_actor_role
+        sp.registerStoredProcedureParameter(4, String.class, ParameterMode.OUT);  // p_investigationnum
+
+        sp.setParameter(1, dto.getGrvnNum());
+        sp.setParameter(2, dto.getActorId());    // OFFICER ID
+        sp.setParameter(3, dto.getActorRole());  // "OFFICER"
 
         sp.execute();
+
+        return (String) sp.getOutputParameterValue(4);
     }
+
 
     // 9. Resolve grievance → SP
     @Override

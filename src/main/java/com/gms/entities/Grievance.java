@@ -97,6 +97,15 @@ public class Grievance {
     public Severity getSeverity() { return severity; }
     public void setSeverity(Severity severity) { this.severity = severity; }
 
+    public Set<GrievanceLegalRefs> getGrievanceLegalRefs() {
+        return grievanceLegalRefs;
+    }
+
+    public void setGrievanceLegalRefs(Set<GrievanceLegalRefs> grievanceLegalRefs) {
+        this.grievanceLegalRefs = grievanceLegalRefs;
+    }
+
+
     @Override
     public String toString() {
         return "Grievance{" +

@@ -21,7 +21,7 @@ public class GrievanceLegalRefs {
     private Grievance grievance;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "legrefsnum", referencedColumnName = "legrefsnum", nullable = false, columnDefinition = "CHAR(4)")
+    @JoinColumn(name = "legrefsnum", referencedColumnName = "legrefsnum", nullable = false, columnDefinition = "CHAR(6)")
     private LegalRefs legalRefs;
 
     // Getters and Setters

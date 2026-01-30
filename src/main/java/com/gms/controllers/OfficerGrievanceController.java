@@ -6,10 +6,10 @@ import com.gms.dto.GrievanceResolveDTO;
 import com.gms.services.GrievanceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/officer/grievances")
@@ -27,38 +27,35 @@ public class OfficerGrievanceController {
     public ResponseEntity<List<GrievanceBasicDTO>> getAllGrievances(
             @RequestParam(required = false) String status
     ) {
-        return ResponseEntity.ok(
-                grievanceService.getAllGrievances(null, status)
-        );
+        return ResponseEntity.ok(grievanceService.getAllGrievances(null, status));
     }
 
-    // Assign grievance (SP: assign_grievance)
+    // Assign grievance
     @PutMapping("/{grvnNum}/assign")
-    public ResponseEntity<?> assignGrievance(
-            @PathVariable String grvnNum,
-            @RequestBody GrievanceAssignDTO dto,
-            Authentication auth
-    ) {
-        dto.setGrvnNum(grvnNum);
-        dto.setActorId(auth.getName());
-        dto.setActorRole("OFFICER");
+    public ResponseEntity<?> assignGrievance(@PathVariable String grvnNum,
+                                             @RequestBody GrievanceAssignDTO dto) {
 
-        grievanceService.assignGrievance(dto);
-        return ResponseEntity.ok("Grievance assigned");
+        dto.setGrvnNum(grvnNum); // only set grvnNum
+        String investigationNum = grievanceService.assignGrievance(dto);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Grievance assigned successfully",
+                "grvnNum", grvnNum,
+                "investigationNum", investigationNum
+        ));
     }
 
-    // Resolve grievance (SP: resolve_grievance)
+    // Resolve grievance
     @PutMapping("/{grvnNum}/resolve")
-    public ResponseEntity<?> resolveGrievance(
-            @PathVariable String grvnNum,
-            @RequestBody GrievanceResolveDTO dto,
-            Authentication auth
-    ) {
-        dto.setGrvnNum(grvnNum);
-        dto.setActorId(auth.getName());
-        dto.setActorRole("OFFICER");
+    public ResponseEntity<?> resolveGrievance(@PathVariable String grvnNum,
+                                              @RequestBody GrievanceResolveDTO dto) {
 
+        dto.setGrvnNum(grvnNum); // only set grvnNum
         grievanceService.resolveGrievance(dto);
-        return ResponseEntity.ok("Grievance resolved");
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Grievance resolved successfully",
+                "grvnNum", grvnNum
+        ));
     }
 }

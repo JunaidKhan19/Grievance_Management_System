@@ -27,6 +27,16 @@ public class Appeal {
     @JsonBackReference
     private Grievance grievance;
 
+    @ManyToOne
+    @JoinColumn(name = "investigationnum", referencedColumnName = "investigationNum", columnDefinition = "CHAR(4)")
+    @JsonBackReference
+    private Investigation investigation;
+
+    @ManyToOne
+    @JoinColumn(name = "empnum", referencedColumnName = "empnum", columnDefinition = "CHAR(4)")
+    @JsonBackReference
+    private Employee employee;
+
     @Column(name = "appealContent", length = 255, nullable = false)
     private String appealContent;
 

@@ -11,5 +11,10 @@ public interface AppealRepository extends JpaRepository<Appeal, Integer> {
 
     List<Appeal> findByGrievance_GrvnNum(String grvnNum);
 
+    List<Appeal> findByInvestigation_InvestigationNum(String investigationNum);
+
+    List<Appeal> findByEmployee_UserNum(String userNum);
+
+
     // ⚠ SP-driven: filing appeals (if implemented)
 }

@@ -35,9 +35,10 @@ public interface GrievanceRepository extends JpaRepository<Grievance, Integer> {
     @Query(value = "SELECT * FROM vw_grievances_by_category", nativeQuery = true)
     List<Object[]> countByCategory();
 
-    // Grievances list by category
-    @Query(value = "SELECT * FROM vw_grievances_list_by_category", nativeQuery = true)
-    List<Object[]> listByCategory();
+    // Grievances list by category, optionally filtered
+    @Query(value = "SELECT * FROM vw_grievances_list_by_category " +
+            "WHERE (:category IS NULL OR ctgnum = :category)", nativeQuery = true)
+    List<Object[]> listByCategory(@Param("category") String category);
 
     // Single grievance details with employee info
     @Query(value = "SELECT * FROM vw_grievance_with_employee WHERE grvnnum = ?1", nativeQuery = true)

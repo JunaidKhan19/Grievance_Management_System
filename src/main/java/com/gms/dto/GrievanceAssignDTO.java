@@ -11,9 +11,6 @@ public class GrievanceAssignDTO {
     public String getGrvnNum() { return grvnNum; }
     public void setGrvnNum(String grvnNum) { this.grvnNum = grvnNum; }
 
-    public String getOfficerNum() { return officerNum; }
-    public void setOfficerNum(String officerNum) { this.officerNum = officerNum; }
-
     public String getActorId() { return actorId; }
     public void setActorId(String actorId) { this.actorId = actorId; }
 

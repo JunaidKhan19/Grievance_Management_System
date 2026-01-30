@@ -18,7 +18,7 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    @DeleteMapping("/employees/{empnum}")
+    @DeleteMapping("/delete_employees/{empnum}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteEmployee(@PathVariable String empnum, Authentication auth) {
         String actorId = auth.getName(); // From JWT
@@ -28,7 +28,7 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("message", "Employee deleted"));
     }
 
-    @DeleteMapping("/officers/{officernum}")
+    @DeleteMapping("/delete_officers/{officernum}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteOfficer(
             @PathVariable String officernum,

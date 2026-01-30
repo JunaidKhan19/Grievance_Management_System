@@ -14,7 +14,7 @@ public class LegalRefs {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer legalrefsId;
 
-    @Column(name = "legrefsnum", length = 4, unique = true, nullable = false, columnDefinition = "CHAR(4)")
+    @Column(name = "legrefsnum", length = 4, unique = true, nullable = false, columnDefinition = "CHAR(6)")
     private String legRefsnum;
 
     @Column(length = 30, nullable = false)
