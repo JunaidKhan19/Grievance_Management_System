@@ -3,6 +3,7 @@ package com.gms.dto;
 public class LegalRefResponseDTO {
 
     private String legRefsNum;
+    private String ctgnum;
     private String topic;
     private String actName;
     private String legRef;
@@ -15,6 +16,14 @@ public class LegalRefResponseDTO {
         this.legRefsNum = legRefsNum;
     }
 
+    public String getCtgnum() {
+        return ctgnum;
+    }
+
+    public void setCtgnum(String ctgnum) {
+        this.ctgnum = ctgnum;
+    }
+    
     public String getTopic() {
         return topic;
     }

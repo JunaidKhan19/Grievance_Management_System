@@ -14,10 +14,7 @@ public class LegalRefSPRepository {
     @PersistenceContext
     private EntityManager em;
 
-    public void assignLegalRefToGrievance(GrievanceLegalRefDTO dto) {
-        String actorId = ActorContextHolder.getActorId();
-        String actorRole = ActorContextHolder.getActorRole();
-
+    public void assignLegalRefToGrievance(String actorId, String actorRole, String grvnNum, String legrefsNum) {
         StoredProcedureQuery sp = em.createStoredProcedureQuery("assign_legalrefs_to_grievance");
 
         sp.registerStoredProcedureParameter("p_actor_id", String.class, ParameterMode.IN);
@@ -27,8 +24,8 @@ public class LegalRefSPRepository {
 
         sp.setParameter("p_actor_id", actorId);
         sp.setParameter("p_actor_role", actorRole);
-        sp.setParameter("p_grvnnum", dto.getGrvnNum());
-        sp.setParameter("p_legrefsnum", dto.getLegrefsNum());
+        sp.setParameter("p_grvnnum", grvnNum);
+        sp.setParameter("p_legrefsnum", legrefsNum);
 
         sp.execute();
     }

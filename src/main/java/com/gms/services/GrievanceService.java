@@ -9,7 +9,6 @@ public interface GrievanceService {
     // 1. File a grievance → calls SP
     public GrievanceResponseDTO fileGrievance(GrievanceRequestDTO request, String actorId, String actorRole);
 
-
     // 2. Get grievance by number
     GrievanceDTO getGrievanceByNum(String grvnNum);
 
@@ -17,7 +16,7 @@ public interface GrievanceService {
     List<GrievanceBasicDTO> getAllGrievances(String empNum, String status);
 
     // 4. Get resolved grievances with resolution
-    List<GrievanceDTO> getResolvedGrievances();
+    List<GrievanceDTO> getResolveGrievance();
 
     // 5. Count by status (dashboard)
     List<Object[]> countByStatus();
@@ -39,4 +38,8 @@ public interface GrievanceService {
 
     // 11. Check existence
     boolean exists(String grvnNum);
+
+    // 12. update status to intended_resolve
+    void employeeIntendedResolve(String grvnnum);
+
 }

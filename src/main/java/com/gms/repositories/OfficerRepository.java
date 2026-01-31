@@ -9,8 +9,5 @@ import java.util.List;
 
 @Repository
 public interface OfficerRepository extends JpaRepository<Officer, Integer> {
-
-    boolean existsByUserNum(String userNum);
-
     Officer findByUserNum(String officerNum);
 }

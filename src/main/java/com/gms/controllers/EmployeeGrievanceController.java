@@ -30,7 +30,7 @@ public class EmployeeGrievanceController {
         try {
             System.out.println(">>> CONTROLLER ENTERED");
 
-            // Just call the service; aspect will set context
+            // Just calling the service; aspect will set context
             GrievanceResponseDTO result = grievanceService.fileGrievance(
                     dto,
                     auth.getName(),
@@ -55,4 +55,13 @@ public class EmployeeGrievanceController {
                 grievanceService.getAllGrievances(auth.getName(), status)
         );
     }
+
+    @PutMapping("/{grvnnum}/intended-resolve")
+    public ResponseEntity<Void> intendedResolve(@PathVariable String grvnnum) {
+
+        grievanceService.employeeIntendedResolve(grvnnum);
+
+        return ResponseEntity.ok().build();
+    }
+
 }

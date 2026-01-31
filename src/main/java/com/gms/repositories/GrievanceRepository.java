@@ -14,10 +14,6 @@ public interface GrievanceRepository extends JpaRepository<Grievance, Integer> {
 
     Grievance findByGrvnNum(String grvnNum);
 
-    List<Grievance> findByEmployee_UserNum(String empNum);
-
-    List<Grievance> findByStatus(GrievanceStatus status);
-
     boolean existsByGrvnNum(String grvnNum);
 
     @Query(value = "SELECT * FROM vw_grievances_basic " +

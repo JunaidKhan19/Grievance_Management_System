@@ -2,6 +2,7 @@ package com.gms.services.impl;
 
 import com.gms.dto.*;
 import com.gms.repositories.GrievanceRepository;
+import com.gms.repositories.GrievanceStatusRepository;
 import com.gms.services.GrievanceService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
@@ -17,13 +18,18 @@ import java.util.stream.Collectors;
 public class GrievanceServiceImpl implements GrievanceService {
 
     private final GrievanceRepository grievanceRepository;
+    private final GrievanceStatusRepository grievanceStatusRepository;
+
+    public GrievanceServiceImpl(
+            GrievanceRepository grievanceRepository,
+            GrievanceStatusRepository grievanceStatusRepository
+    ) {
+        this.grievanceRepository = grievanceRepository;
+        this.grievanceStatusRepository = grievanceStatusRepository;
+    }
 
     @PersistenceContext
     private EntityManager em;
-
-    public GrievanceServiceImpl(GrievanceRepository grievanceRepository) {
-        this.grievanceRepository = grievanceRepository;
-    }
 
     @Override
     @Transactional
@@ -78,7 +84,7 @@ public class GrievanceServiceImpl implements GrievanceService {
 
     // 4. Resolved grievances
     @Override
-    public List<GrievanceDTO> getResolvedGrievances() {
+    public List<GrievanceDTO> getResolveGrievance() {
         return grievanceRepository.resolvedGrievances().stream()
                 .map(GrievanceMapper::toGrievanceDTO)
                 .collect(Collectors.toList());
@@ -177,4 +183,11 @@ public class GrievanceServiceImpl implements GrievanceService {
     public boolean exists(String grvnNum) {
         return grievanceRepository.existsByGrvnNum(grvnNum);
     }
+
+    @Override
+    @Transactional
+    public void employeeIntendedResolve(String grvnnum) {
+        grievanceStatusRepository.employeeIntendedResolve(grvnnum);
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.gms.repositories;
+package com.gms.repositories.sp;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -6,7 +6,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class AdminProcedureRepository {
+public class AdminSPRepository {
 
     @PersistenceContext
     private EntityManager em;

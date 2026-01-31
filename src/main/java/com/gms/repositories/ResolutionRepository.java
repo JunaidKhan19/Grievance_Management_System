@@ -10,6 +10,4 @@ import java.util.List;
 public interface ResolutionRepository extends JpaRepository<Resolution, Integer> {
 
     List<Resolution> findByGrievance_GrvnNum(String grvnNum);
-
-    // ⚠ SP-driven: resolve_grievance
 }

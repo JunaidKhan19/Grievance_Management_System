@@ -1,15 +1,15 @@
 package com.gms.services.impl;
 
-import com.gms.repositories.AdminProcedureRepository;
+import com.gms.repositories.sp.AdminSPRepository;
 import com.gms.services.AdminService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AdminServiceImpl implements AdminService {
 
-    private final AdminProcedureRepository adminProcedureRepo;
+    private final AdminSPRepository adminProcedureRepo;
 
-    public AdminServiceImpl(AdminProcedureRepository adminProcedureRepo) {
+    public AdminServiceImpl(AdminSPRepository adminProcedureRepo) {
         this.adminProcedureRepo = adminProcedureRepo;
     }
 
