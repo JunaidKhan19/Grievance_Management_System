@@ -32,10 +32,11 @@ public class OfficerGrievanceController {
 
     // Assign grievance
     @PutMapping("/{grvnNum}/assign")
-    public ResponseEntity<?> assignGrievance(@PathVariable String grvnNum,
-                                             @RequestBody GrievanceAssignDTO dto) {
+    public ResponseEntity<?> assignGrievance(@PathVariable String grvnNum) {
 
-        dto.setGrvnNum(grvnNum); // only set grvnNum
+        GrievanceAssignDTO dto = new GrievanceAssignDTO();
+        dto.setGrvnNum(grvnNum);
+
         String investigationNum = grievanceService.assignGrievance(dto);
 
         return ResponseEntity.ok(Map.of(

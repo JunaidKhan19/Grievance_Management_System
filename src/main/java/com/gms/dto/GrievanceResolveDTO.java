@@ -3,16 +3,23 @@ package com.gms.dto;
 public class GrievanceResolveDTO {
 
     private String grvnNum;
-    private String actorId;
-    private String actorRole;
 
-    // Getters & Setters
-    public String getGrvnNum() { return grvnNum; }
-    public void setGrvnNum(String grvnNum) { this.grvnNum = grvnNum; }
+    private String resolution;
 
-    public String getActorId() { return actorId; }
-    public void setActorId(String actorId) { this.actorId = actorId; }
+    // getters & setters
+    public String getGrvnNum() {
+        return grvnNum;
+    }
 
-    public String getActorRole() { return actorRole; }
-    public void setActorRole(String actorRole) { this.actorRole = actorRole; }
+    public void setGrvnNum(String grvnNum) {
+        this.grvnNum = grvnNum;
+    }
+
+    public String getResolution() {
+        return resolution;
+    }
+
+    public void setResolution(String resolution) {
+        this.resolution = resolution;
+    }
 }

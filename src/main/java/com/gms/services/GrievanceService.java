@@ -10,13 +10,12 @@ public interface GrievanceService {
     public GrievanceResponseDTO fileGrievance(GrievanceRequestDTO request, String actorId, String actorRole);
 
     // 2. Get grievance by number
+    GrievanceDTO getGrievancesByNum(String grvnNum);
+
     GrievanceDTO getGrievanceByNum(String grvnNum);
 
     // 3. Get all grievance by either status or empnum or both
     List<GrievanceBasicDTO> getAllGrievances(String empNum, String status);
-
-    // 4. Get resolved grievances with resolution
-    List<GrievanceDTO> getResolveGrievance();
 
     // 5. Count by status (dashboard)
     List<Object[]> countByStatus();
@@ -31,7 +30,7 @@ public interface GrievanceService {
     String assignGrievance(GrievanceAssignDTO assignDTO);
 
     // 9. Resolve grievance → SP (officer)
-    void resolveGrievance(GrievanceResolveDTO resolveDTO);
+    String resolveGrievance(GrievanceResolveDTO resolveDTO);
 
     // 10. Delete grievance → SP (admin)
     void deleteGrievance(String grvnNum, String actorId, String actorRole);
@@ -42,4 +41,5 @@ public interface GrievanceService {
     // 12. update status to intended_resolve
     void employeeIntendedResolve(String grvnnum);
 
+    ResolutionDTO getResolutionByGrievance(String grvnNum);
 }

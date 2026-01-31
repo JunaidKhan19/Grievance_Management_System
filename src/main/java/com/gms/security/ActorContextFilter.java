@@ -1,32 +1,37 @@
-package com.gms.aop;
+package com.gms.security;
 
 import com.gms.utils.ActorContextHolder;
-import org.aspectj.lang.annotation.*;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-@Aspect
+import java.io.IOException;
+
 @Component
-public class ActorContextAspect {
+public class ActorContextFilter extends OncePerRequestFilter {
 
-    @Around("execution(* com.gms.services..*(..))")
-    public Object setActorContext(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null && auth.isAuthenticated()) {
 
-            String actorId = auth.getName(); // O005
-
+            String actorId = auth.getName(); // E080
             String actorRole = auth.getAuthorities()
                     .iterator()
                     .next()
-                    .getAuthority(); // ROLE_OFFICER
+                    .getAuthority(); // ROLE_EMPLOYEE
 
-            // 🔥 STRIP PREFIX
             if (actorRole.startsWith("ROLE_")) {
                 actorRole = actorRole.substring(5);
             }
@@ -36,7 +41,7 @@ public class ActorContextAspect {
         }
 
         try {
-            return joinPoint.proceed();
+            filterChain.doFilter(request, response);
         } finally {
             ActorContextHolder.clear();
         }

@@ -1,9 +1,13 @@
 package com.gms.services.impl;
 
 import com.gms.dto.*;
+import com.gms.entities.Grievance;
+import com.gms.entities.Resolution;
 import com.gms.repositories.GrievanceRepository;
 import com.gms.repositories.GrievanceStatusRepository;
+import com.gms.repositories.ResolutionRepository;
 import com.gms.services.GrievanceService;
+import com.gms.utils.ActorContextHolder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
@@ -19,13 +23,16 @@ public class GrievanceServiceImpl implements GrievanceService {
 
     private final GrievanceRepository grievanceRepository;
     private final GrievanceStatusRepository grievanceStatusRepository;
+    private final ResolutionRepository resolutionRepository;
 
     public GrievanceServiceImpl(
             GrievanceRepository grievanceRepository,
-            GrievanceStatusRepository grievanceStatusRepository
+            GrievanceStatusRepository grievanceStatusRepository,
+            ResolutionRepository resolutionRepository // ADD THIS
     ) {
         this.grievanceRepository = grievanceRepository;
         this.grievanceStatusRepository = grievanceStatusRepository;
+        this.resolutionRepository = resolutionRepository; // ADD THIS
     }
 
     @PersistenceContext
@@ -66,12 +73,40 @@ public class GrievanceServiceImpl implements GrievanceService {
         return response;
     }
 
-
     // 2. Fetch single grievance
     @Override
-    public GrievanceDTO getGrievanceByNum(String grvnNum) {
+    public GrievanceDTO getGrievancesByNum(String grvnNum) {
         Object[] obj = grievanceRepository.findWithEmployee(grvnNum);
         return GrievanceMapper.toGrievanceDTO(obj); // mapping raw Object[] to DTO
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GrievanceDTO getGrievanceByNum(String grvnNum) {
+
+        Grievance grievance = grievanceRepository.findByGrvnNum(grvnNum);
+
+        if (grievance == null) {
+            throw new RuntimeException("Grievance not found: " + grvnNum);
+        }
+
+        GrievanceDTO dto = new GrievanceDTO();
+
+        dto.setGrvnNum(grievance.getGrvnNum());
+
+        // inherited from User
+        dto.setEmpNum(grievance.getEmployee().getUserNum());
+
+        dto.setCategoryNum(grievance.getCategory().getCtgNum());
+        dto.setCategoryName(grievance.getCategory().getCtgName());
+
+        dto.setSubject(grievance.getSubject());
+        dto.setDescription(grievance.getDescription());
+        dto.setStatus(grievance.getStatus());
+        dto.setSeverity(grievance.getSeverity());
+        dto.setDateFiled(grievance.getDateFiled());
+
+        return dto;
     }
 
     @Override
@@ -79,14 +114,6 @@ public class GrievanceServiceImpl implements GrievanceService {
         List<Object[]> list = grievanceRepository.findAllBasicByEmpNumAndStatus(empNum, status);
         return list.stream()
                 .map(GrievanceMapper::toGrievanceBasicDTO)
-                .collect(Collectors.toList());
-    }
-
-    // 4. Resolved grievances
-    @Override
-    public List<GrievanceDTO> getResolveGrievance() {
-        return grievanceRepository.resolvedGrievances().stream()
-                .map(GrievanceMapper::toGrievanceDTO)
                 .collect(Collectors.toList());
     }
 
@@ -126,18 +153,24 @@ public class GrievanceServiceImpl implements GrievanceService {
     @Transactional
     public String assignGrievance(GrievanceAssignDTO dto) {
 
+        String actorId = ActorContextHolder.getActorId();
+        String actorRole = ActorContextHolder.getActorRole();
+
+        if (actorId == null || actorRole == null) {
+            throw new RuntimeException("Actor context not initialized");
+        }
+
         StoredProcedureQuery sp =
                 em.createStoredProcedureQuery("assign_grievance");
 
-        // EXACT order as SP
         sp.registerStoredProcedureParameter(1, String.class, ParameterMode.IN);   // p_grvnnum
         sp.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);   // p_actor_id
         sp.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);   // p_actor_role
         sp.registerStoredProcedureParameter(4, String.class, ParameterMode.OUT);  // p_investigationnum
 
         sp.setParameter(1, dto.getGrvnNum());
-        sp.setParameter(2, dto.getActorId());    // OFFICER ID
-        sp.setParameter(3, dto.getActorRole());  // "OFFICER"
+        sp.setParameter(2, actorId);      // ✅ from context
+        sp.setParameter(3, actorRole);    // ✅ from context
 
         sp.execute();
 
@@ -145,21 +178,42 @@ public class GrievanceServiceImpl implements GrievanceService {
     }
 
 
+
     // 9. Resolve grievance → SP
     @Override
     @Transactional
-    public void resolveGrievance(GrievanceResolveDTO dto) {
-        StoredProcedureQuery sp = em.createStoredProcedureQuery("resolve_grievance");
-        sp.registerStoredProcedureParameter("p_grvnnum", String.class, ParameterMode.IN);
-        sp.registerStoredProcedureParameter("p_actor_id", String.class, ParameterMode.IN);
-        sp.registerStoredProcedureParameter("p_actor_role", String.class, ParameterMode.IN);
+    public String resolveGrievance(GrievanceResolveDTO dto) {
 
-        sp.setParameter("p_grvnnum", dto.getGrvnNum());
-        sp.setParameter("p_actor_id", dto.getActorId());
-        sp.setParameter("p_actor_role", dto.getActorRole());
+        // Get actor info from security context / session
+        String actorId = ActorContextHolder.getActorId();
+        String actorRole = ActorContextHolder.getActorRole();
+
+        StoredProcedureQuery sp = em.createStoredProcedureQuery("resolve_grievance");
+
+        // Register all SP parameters
+        sp.registerStoredProcedureParameter(1, String.class, ParameterMode.IN);   // p_grvnnum
+        sp.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);   // p_resolution
+        sp.registerStoredProcedureParameter(3, String.class, ParameterMode.IN);   // p_actor_id
+        sp.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);   // p_actor_role
+        sp.registerStoredProcedureParameter(5, String.class, ParameterMode.OUT);  // p_resnnum
+
+        System.out.println("Resolution content = " + dto.getResolution());
+
+        // Set IN parameters
+        sp.setParameter(1, dto.getGrvnNum());
+        sp.setParameter(2, dto.getResolution());
+        sp.setParameter(3, actorId);
+        sp.setParameter(4, actorRole);
 
         sp.execute();
+
+        // Fetch OUT parameter (generated resolution number)
+        String resnNum = (String) sp.getOutputParameterValue(5);
+        System.out.println("Generated Resolution Num = " + resnNum);
+
+        return resnNum;
     }
+
 
     // 10. Delete grievance → SP
     @Override
@@ -189,5 +243,20 @@ public class GrievanceServiceImpl implements GrievanceService {
     public void employeeIntendedResolve(String grvnnum) {
         grievanceStatusRepository.employeeIntendedResolve(grvnnum);
     }
+
+    @Override
+    public ResolutionDTO getResolutionByGrievance(String grvnNum) {
+        Resolution res = resolutionRepository.findByGrievance_GrvnNum(grvnNum)
+                .orElseThrow(() -> new RuntimeException("Resolution not found for grievance: " + grvnNum));
+
+        ResolutionDTO dto = new ResolutionDTO();
+        dto.setResnNum(res.getResnNum());
+        dto.setGrvnNum(res.getGrievance().getGrvnNum());
+        dto.setResnContent(res.getResnContent());
+        dto.setResnDate(res.getResnDate());
+
+        return dto;
+    }
+
 
 }

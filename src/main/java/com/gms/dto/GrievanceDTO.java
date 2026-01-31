@@ -1,9 +1,11 @@
 package com.gms.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gms.enums.GrievanceStatus;
 import com.gms.enums.Severity;
 import java.time.LocalDateTime;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GrievanceDTO {
 
     private String grvnNum;

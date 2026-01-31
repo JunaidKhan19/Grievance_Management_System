@@ -24,10 +24,16 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
+    private final ActorContextFilter actorContextFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtFilter,
+            ActorContextFilter actorContextFilter
+    ) {
         this.jwtFilter = jwtFilter;
+        this.actorContextFilter = actorContextFilter;
     }
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -55,6 +61,7 @@ public class SecurityConfig {
                 );
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(actorContextFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
